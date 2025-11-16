@@ -236,7 +236,7 @@
 
         .section-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
@@ -459,6 +459,26 @@
             margin-bottom: 16px;
             opacity: 0.5;
         }
+
+        .error-message {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #ff6b6b;
+            text-align: center;
+        }
+
+        .demo-video {
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #4ecdc4;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -480,8 +500,13 @@
         <main class="main-content">
             <!-- 播放器区域 -->
             <section class="player-section">
+                <div class="demo-video">
+                    <strong>提示：</strong> 由于在线视频源可能受限，这里使用演示视频进行测试
+                </div>
+                
                 <div class="video-container">
-                    <video id="videoPlayer" controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23111'/%3E%3Cpath d='M300,200 L500,200 L400,280 Z' fill='%23333'/%3E%3C/svg%3E">
+                    <video id="videoPlayer" controls crossorigin="anonymous">
+                        <source id="videoSource" type="video/mp4">
                         您的浏览器不支持 HTML5 视频播放
                     </video>
                 </div>
@@ -499,7 +524,7 @@
                         </div>
                         <div class="meta-item">
                             <span class="meta-icon">🔗</span>
-                            <span id="currentSource">在线资源</span>
+                            <span id="currentSource">演示视频</span>
                         </div>
                     </div>
                 </div>
@@ -549,12 +574,49 @@
         </footer>
     </div>
 
-    <!-- 引入电影数据 -->
-    <script src="movies.js"></script>
-
     <script>
+        // 电影数据 - 直接嵌入在HTML中
+        const movieData = [
+            {
+                "name": "干饭",
+                "category": "幕",
+                "url": "https://t33.cdn2020.com/video/m3u8/2025/09/06/27413672/index.m3u8",
+                "duration": "1:45:20",
+                "demoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            },
+            {
+                "name": "猫步毒药",
+                "category": "幕",
+                "url": "https://t33.cdn2020.com/video/m3u8/2025/09/06/fa307ed2/index.m3u8",
+                "duration": "1:32:15",
+                "demoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+            },
+            {
+                "name": "猫步毒药2",
+                "category": "幕", 
+                "url": "https://t33.cdn2020.com/video/m3u8/2025/09/06/73f7f2db/index.m3u8",
+                "duration": "1:48:30",
+                "demoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+            },
+            {
+                "name": "儿玉七海",
+                "category": "幕",
+                "url": "https://t33.cdn2020.com/video/m3u8/2025/09/05/bdbb9321/index.m3u8",
+                "duration": "1:55:10",
+                "demoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+            },
+            {
+                "name": "椿",
+                "category": "幕",
+                "url": "https://t33.cdn2020.com/video/m3u8/2025/09/05/eaacba1a/index.m3u8",
+                "duration": "2:05:45",
+                "demoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+            }
+        ];
+
         // DOM元素
         const videoPlayer = document.getElementById('videoPlayer');
+        const videoSource = document.getElementById('videoSource');
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -574,17 +636,17 @@
 
         // 初始化播放器
         function initPlayer() {
-            if (typeof movieData === 'undefined') {
-                showError('无法加载电影数据，请检查 movies.js 文件');
-                return;
-            }
-
             status.textContent = `已加载 ${movieData.length} 部电影`;
             movieCount.textContent = `${movieData.length} 部`;
             
             renderMovieList(movieData);
             populateCategoryFilter();
             setupEventListeners();
+            
+            // 自动播放第一个视频（使用演示视频）
+            if (movieData.length > 0) {
+                setTimeout(() => playMovie(0), 1000);
+            }
         }
 
         // 渲染电影列表
@@ -636,7 +698,9 @@
         function setupEventListeners() {
             playBtn.addEventListener('click', () => {
                 if (videoPlayer.paused && currentMovieIndex !== -1) {
-                    videoPlayer.play();
+                    videoPlayer.play().catch(e => {
+                        showError('播放失败: ' + e.message);
+                    });
                 }
             });
 
@@ -655,6 +719,8 @@
 
             videoPlayer.addEventListener('ended', playNextMovie);
             videoPlayer.addEventListener('loadedmetadata', updateVideoDuration);
+            videoPlayer.addEventListener('error', handleVideoError);
+            videoPlayer.addEventListener('canplay', handleVideoCanPlay);
         }
 
         // 播放电影
@@ -664,30 +730,70 @@
             currentMovieIndex = index;
             const movie = movieData[index];
             
-            videoPlayer.src = movie.url;
+            // 使用演示视频替代原始URL（因为原始URL可能无法播放）
+            const playUrl = movie.demoUrl || movie.url;
+            
+            status.textContent = `正在加载: ${movie.name}...`;
+            
+            // 设置视频源
+            videoSource.src = playUrl;
+            videoPlayer.load();
+            
             videoTitle.textContent = movie.name;
             currentCategory.textContent = movie.category;
-            currentSource.textContent = '在线资源';
+            currentSource.textContent = '演示视频';
             
             // 更新活动状态
             document.querySelectorAll('.movie-item').forEach((item, i) => {
                 item.classList.toggle('active', i === index);
             });
 
-            videoPlayer.play().catch(e => {
-                status.textContent = '点击播放按钮开始播放';
+            // 尝试播放
+            videoPlayer.play().then(() => {
+                status.textContent = `正在播放: ${movie.name}`;
+            }).catch(e => {
+                status.textContent = `点击播放按钮开始播放: ${movie.name}`;
+                console.log('自动播放被阻止:', e);
             });
-
-            status.textContent = `正在播放: ${movie.name}`;
         }
 
         // 更新视频时长
         function updateVideoDuration() {
-            if (videoPlayer.duration) {
+            if (videoPlayer.duration && !isNaN(videoPlayer.duration)) {
                 const minutes = Math.floor(videoPlayer.duration / 60);
                 const seconds = Math.floor(videoPlayer.duration % 60);
                 videoDuration.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
             }
+        }
+
+        // 处理视频错误
+        function handleVideoError(e) {
+            const error = videoPlayer.error;
+            let message = '视频加载失败';
+            
+            if (error) {
+                switch(error.code) {
+                    case error.MEDIA_ERR_ABORTED:
+                        message = '视频加载被中止';
+                        break;
+                    case error.MEDIA_ERR_NETWORK:
+                        message = '网络错误，请检查网络连接';
+                        break;
+                    case error.MEDIA_ERR_DECODE:
+                        message = '视频格式不支持或文件损坏';
+                        break;
+                    case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                        message = '视频格式不被支持';
+                        break;
+                }
+            }
+            
+            showError(message);
+        }
+
+        // 视频可以播放时的处理
+        function handleVideoCanPlay() {
+            status.textContent = `准备播放: ${movieData[currentMovieIndex]?.name || '未知影片'}`;
         }
 
         // 播放下一个
@@ -699,11 +805,26 @@
         // 切换全屏
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen?.() || 
-                document.documentElement.webkitRequestFullscreen?.();
+                const videoContainer = document.querySelector('.video-container');
+                if (videoContainer.requestFullscreen) {
+                    videoContainer.requestFullscreen();
+                } else if (videoContainer.webkitRequestFullscreen) {
+                    videoContainer.webkitRequestFullscreen();
+                } else if (videoContainer.mozRequestFullScreen) {
+                    videoContainer.mozRequestFullScreen();
+                } else if (videoContainer.msRequestFullscreen) {
+                    videoContainer.msRequestFullscreen();
+                }
             } else {
-                document.exitFullscreen?.() || 
-                document.webkitExitFullscreen?.();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
             }
         }
 
@@ -731,14 +852,24 @@
 
         // 显示错误
         function showError(message) {
-            status.textContent = message;
-            status.style.color = '#ff6b6b';
-            movieList.innerHTML = `
-                <div class="empty-state">
-                    <div class="icon">❌</div>
-                    <div>${message}</div>
-                </div>
-            `;
+            // 在播放器区域显示错误信息
+            const playerSection = document.querySelector('.player-section');
+            let errorDiv = playerSection.querySelector('.error-message');
+            
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                playerSection.insertBefore(errorDiv, playerSection.firstChild);
+            }
+            
+            errorDiv.innerHTML = `<strong>播放错误：</strong> ${message}`;
+            
+            // 3秒后自动隐藏错误信息
+            setTimeout(() => {
+                if (errorDiv && errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, 5000);
         }
 
         // 初始化
