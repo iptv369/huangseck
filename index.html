@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>电影播放器 - 移动版</title>
+    <title>播放器</title>
     <style>
         * {
             margin: 0;
@@ -134,7 +134,7 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 使用cover确保视频填满容器 */
+            object-fit: contain;
             background: #000;
             display: block;
         }
@@ -469,7 +469,7 @@
             <!-- 播放器区域 -->
             <section class="player-section">
                 <div class="video-container">
-                    <video id="videoPlayer" controls playsinline webkit-playsinline>
+                    <video id="videoPlayer" controls playsinline webkit-playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23111'/%3E%3Cpath d='M300,200 L500,200 L400,280 Z' fill='%23333'/%3E%3C/svg%3E">
                         您的浏览器不支持 HTML5 视频播放
                     </video>
                 </div>
@@ -533,35 +533,10 @@
         </footer>
     </div>
 
-    <script>
-        // 电影数据 - 使用移动端友好的视频源
-        const movieData = [
-            {
-                name: "示例电影1 - 动作片",
-                category: "动作",
-                duration: "2:15",
-                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-            },
-            {
-                name: "示例电影2 - 科幻片",
-                category: "科幻",
-                duration: "1:48",
-                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
-            },
-            {
-                name: "示例电影3 - 喜剧片",
-                category: "喜剧",
-                duration: "1:55",
-                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
-            },
-            {
-                name: "示例电影4 - 动画片",
-                category: "动画",
-                duration: "2:22",
-                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
-            }
-        ];
+    <!-- 引入电影数据 -->
+    <script src="movies.js"></script>
 
+    <script>
         // DOM元素
         const videoPlayer = document.getElementById('videoPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -582,6 +557,11 @@
 
         // 初始化播放器
         function initPlayer() {
+            if (typeof movieData === 'undefined') {
+                showError('无法加载电影数据，请检查 movies.js 文件');
+                return;
+            }
+
             status.textContent = `已加载 ${movieData.length} 部电影`;
             movieCount.textContent = `${movieData.length} 部`;
             
@@ -770,7 +750,7 @@
             if (document.fullscreenElement) {
                 videoPlayer.style.objectFit = 'contain';
             } else {
-                videoPlayer.style.objectFit = 'cover';
+                videoPlayer.style.objectFit = 'contain';
             }
         }
 
@@ -800,6 +780,18 @@
         function handleVideoError(e) {
             console.error('视频加载错误:', e);
             status.textContent = '视频加载失败，请检查网络连接';
+        }
+
+        // 显示错误
+        function showError(message) {
+            status.textContent = message;
+            status.style.color = '#ff6b6b';
+            movieList.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">❌</div>
+                    <div>${message}</div>
+                </div>
+            `;
         }
 
         // 初始化
