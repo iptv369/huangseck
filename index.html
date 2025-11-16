@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>电影播放器</title>
+    <title>电影播放器 - 移动版</title>
     <style>
         * {
             margin: 0;
@@ -18,16 +18,17 @@
             color: #ffffff;
             min-height: 100vh;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         /* 布局容器 */
         .app-container {
-            max-width: 1400px;
+            width: 100%;
             margin: 0 auto;
-            padding: 20px;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            gap: 20px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             min-height: 100vh;
         }
 
@@ -35,8 +36,8 @@
         .app-header {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 20px 30px;
+            border-radius: 16px;
+            padding: 15px 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
@@ -45,30 +46,29 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
         }
 
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .logo {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
         }
 
         .logo-text {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             background: linear-gradient(135deg, #ffffff, #a0a0c0);
             -webkit-background-clip: text;
@@ -77,18 +77,16 @@
 
         .search-section {
             flex: 1;
-            max-width: 400px;
-            min-width: 250px;
         }
 
         .search-box {
             width: 100%;
-            padding: 14px 20px;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50px;
+            border-radius: 25px;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             outline: none;
             transition: all 0.3s ease;
         }
@@ -105,100 +103,94 @@
 
         /* 主要内容区域 */
         .main-content {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 25px;
-            align-items: start;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
         }
 
         /* 播放器区域 */
         .player-section {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 16px;
+            padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            order: 2; /* 在移动端将播放器放在下面 */
         }
 
         .video-container {
             position: relative;
             width: 100%;
             background: #000;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .video-container::before {
-            content: '';
-            display: block;
-            padding-top: 56.25%; /* 16:9 宽高比 */
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            aspect-ratio: 16/9; /* 使用现代宽高比属性 */
         }
 
         video {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover; /* 使用cover确保视频填满容器 */
             background: #000;
+            display: block;
         }
 
         .video-info {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .video-title {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: #ffffff;
             line-height: 1.3;
         }
 
         .video-meta {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             flex-wrap: wrap;
         }
 
         .meta-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .meta-icon {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             opacity: 0.7;
         }
 
         .controls-section {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
 
         .control-btn {
-            padding: 14px 20px;
+            padding: 12px 8px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #4ecdc4, #44a08d);
             color: white;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 4px;
         }
 
         .control-btn:hover {
@@ -224,25 +216,25 @@
         .playlist-section {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 16px;
+            padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            height: fit-content;
-            max-height: 700px;
+            max-height: 400px;
             display: flex;
             flex-direction: column;
+            order: 1; /* 在移动端将播放列表放在上面 */
         }
 
         .section-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .section-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 600;
             color: #ffffff;
         }
@@ -250,26 +242,26 @@
         .movie-count {
             background: rgba(255, 107, 107, 0.2);
             color: #ff6b6b;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
             font-weight: 600;
         }
 
         .filter-controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .filter-select {
-            padding: 12px 16px;
+            padding: 10px 12px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 10px;
             color: white;
-            font-size: 14px;
+            font-size: 12px;
             outline: none;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -285,33 +277,33 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .movie-list::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
 
         .movie-list::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
         .movie-list::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
         .movie-item {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 10px;
+            padding: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .movie-item:hover {
@@ -330,23 +322,23 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 10px;
+            gap: 8px;
         }
 
         .movie-name {
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             color: #ffffff;
-            line-height: 1.4;
+            line-height: 1.3;
             flex: 1;
         }
 
         .movie-duration {
             background: rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.7);
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 500;
             white-space: nowrap;
         }
@@ -354,9 +346,9 @@
         .movie-category {
             background: rgba(255, 107, 107, 0.2);
             color: #ff6b6b;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 500;
             align-self: flex-start;
         }
@@ -365,77 +357,52 @@
         .app-footer {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 16px 25px;
+            border-radius: 12px;
+            padding: 12px 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
+            font-size: 12px;
         }
 
-        /* 移动端适配 */
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
+        /* 平板适配 */
+        @media (min-width: 768px) {
+            .app-container {
+                padding: 20px;
                 gap: 20px;
             }
             
+            .main-content {
+                flex-direction: row;
+            }
+            
+            .player-section {
+                flex: 2;
+                order: 1;
+            }
+            
             .playlist-section {
-                max-height: 500px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .app-container {
-                padding: 15px;
-                gap: 15px;
-            }
-            
-            .app-header {
-                padding: 20px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-section {
-                max-width: none;
-            }
-            
-            .player-section, .playlist-section {
-                padding: 20px;
+                flex: 1;
+                max-height: 600px;
+                order: 2;
             }
             
             .video-title {
                 font-size: 20px;
             }
             
-            .controls-section {
-                grid-template-columns: 1fr;
-            }
-            
-            .filter-controls {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .app-container {
-                padding: 10px;
-            }
-            
-            .player-section, .playlist-section {
-                padding: 15px;
-            }
-            
-            .video-title {
+            .section-title {
                 font-size: 18px;
             }
             
-            .movie-item {
-                padding: 12px;
+            .controls-section {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+            
+            .control-btn {
+                padding: 12px 16px;
+                font-size: 14px;
             }
         }
 
@@ -444,20 +411,41 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 30px;
             color: rgba(255, 255, 255, 0.6);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px 15px;
             color: rgba(255, 255, 255, 0.5);
         }
 
         .empty-state .icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+            font-size: 36px;
+            margin-bottom: 12px;
             opacity: 0.5;
+        }
+
+        /* 电脑端隐藏 */
+        @media (min-width: 1025px) {
+            body::before {
+                content: "此页面专为移动设备优化，请在手机或平板设备上访问";
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+                color: white;
+                font-size: 18px;
+                text-align: center;
+                padding: 20px;
+                z-index: 9999;
+            }
         }
     </style>
 </head>
@@ -471,7 +459,7 @@
                     <div class="logo-text">电影播放器</div>
                 </div>
                 <div class="search-section">
-                    <input type="text" class="search-box" placeholder="搜索电影名称..." id="searchBox">
+                    <input type="text" class="search-box" placeholder="搜索电影..." id="searchBox">
                 </div>
             </div>
         </header>
@@ -481,7 +469,7 @@
             <!-- 播放器区域 -->
             <section class="player-section">
                 <div class="video-container">
-                    <video id="videoPlayer" controls poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23111'/%3E%3Cpath d='M300,200 L500,200 L400,280 Z' fill='%23333'/%3E%3C/svg%3E">
+                    <video id="videoPlayer" controls playsinline webkit-playsinline>
                         您的浏览器不支持 HTML5 视频播放
                     </video>
                 </div>
@@ -496,10 +484,6 @@
                         <div class="meta-item">
                             <span class="meta-icon">⏱️</span>
                             <span id="videoDuration">--:--</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-icon">🔗</span>
-                            <span id="currentSource">在线资源</span>
                         </div>
                     </div>
                 </div>
@@ -532,8 +516,8 @@
                         <option value="all">全部分类</option>
                     </select>
                     <select class="filter-select" id="sortFilter">
-                        <option value="name">按名称排序</option>
-                        <option value="category">按分类排序</option>
+                        <option value="name">按名称</option>
+                        <option value="category">按分类</option>
                     </select>
                 </div>
 
@@ -549,10 +533,35 @@
         </footer>
     </div>
 
-    <!-- 引入电影数据 -->
-    <script src="movies.js"></script>
-
     <script>
+        // 电影数据 - 使用移动端友好的视频源
+        const movieData = [
+            {
+                name: "示例电影1 - 动作片",
+                category: "动作",
+                duration: "2:15",
+                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+            },
+            {
+                name: "示例电影2 - 科幻片",
+                category: "科幻",
+                duration: "1:48",
+                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+            },
+            {
+                name: "示例电影3 - 喜剧片",
+                category: "喜剧",
+                duration: "1:55",
+                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+            },
+            {
+                name: "示例电影4 - 动画片",
+                category: "动画",
+                duration: "2:22",
+                url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+            }
+        ];
+
         // DOM元素
         const videoPlayer = document.getElementById('videoPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -566,7 +575,6 @@
         const videoTitle = document.getElementById('videoTitle');
         const currentCategory = document.getElementById('currentCategory');
         const videoDuration = document.getElementById('videoDuration');
-        const currentSource = document.getElementById('currentSource');
         const status = document.getElementById('status');
         const movieCount = document.getElementById('movieCount');
 
@@ -574,17 +582,27 @@
 
         // 初始化播放器
         function initPlayer() {
-            if (typeof movieData === 'undefined') {
-                showError('无法加载电影数据，请检查 movies.js 文件');
-                return;
-            }
-
             status.textContent = `已加载 ${movieData.length} 部电影`;
             movieCount.textContent = `${movieData.length} 部`;
             
             renderMovieList(movieData);
             populateCategoryFilter();
             setupEventListeners();
+            
+            // 设置视频播放器属性，提高移动端兼容性
+            videoPlayer.setAttribute('playsinline', '');
+            videoPlayer.setAttribute('webkit-playsinline', '');
+            videoPlayer.setAttribute('x5-playsinline', '');
+            videoPlayer.setAttribute('x5-video-player-type', 'h5');
+            videoPlayer.setAttribute('x5-video-player-fullscreen', 'true');
+            videoPlayer.setAttribute('preload', 'metadata');
+            
+            // 隐藏电脑端的提示（如果用户强制访问）
+            if (window.innerWidth > 1024) {
+                const style = document.createElement('style');
+                style.textContent = 'body::before { display: none !important; }';
+                document.head.appendChild(style);
+            }
         }
 
         // 渲染电影列表
@@ -636,7 +654,10 @@
         function setupEventListeners() {
             playBtn.addEventListener('click', () => {
                 if (videoPlayer.paused && currentMovieIndex !== -1) {
-                    videoPlayer.play();
+                    videoPlayer.play().catch(e => {
+                        console.error('播放失败:', e);
+                        status.textContent = '播放失败，请点击视频控件播放';
+                    });
                 }
             });
 
@@ -655,6 +676,11 @@
 
             videoPlayer.addEventListener('ended', playNextMovie);
             videoPlayer.addEventListener('loadedmetadata', updateVideoDuration);
+            videoPlayer.addEventListener('error', handleVideoError);
+            
+            // 监听全屏变化
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
         }
 
         // 播放电影
@@ -664,26 +690,35 @@
             currentMovieIndex = index;
             const movie = movieData[index];
             
+            // 重置视频状态
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+            
+            // 设置新视频源
             videoPlayer.src = movie.url;
             videoTitle.textContent = movie.name;
             currentCategory.textContent = movie.category;
-            currentSource.textContent = '在线资源';
             
             // 更新活动状态
             document.querySelectorAll('.movie-item').forEach((item, i) => {
                 item.classList.toggle('active', i === index);
             });
 
-            videoPlayer.play().catch(e => {
-                status.textContent = '点击播放按钮开始播放';
-            });
+            // 尝试播放
+            const playPromise = videoPlayer.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.error('自动播放失败:', e);
+                    status.textContent = '点击播放按钮开始播放';
+                });
+            }
 
             status.textContent = `正在播放: ${movie.name}`;
         }
 
         // 更新视频时长
         function updateVideoDuration() {
-            if (videoPlayer.duration) {
+            if (videoPlayer.duration && !isNaN(videoPlayer.duration)) {
                 const minutes = Math.floor(videoPlayer.duration / 60);
                 const seconds = Math.floor(videoPlayer.duration % 60);
                 videoDuration.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -692,18 +727,50 @@
 
         // 播放下一个
         function playNextMovie() {
+            if (movieData.length === 0) return;
+            
             const nextIndex = (currentMovieIndex + 1) % movieData.length;
             playMovie(nextIndex);
         }
 
-        // 切换全屏
+        // 切换全屏 - 移动端优化版本
         function toggleFullscreen() {
+            const videoContainer = videoPlayer.parentElement;
+            
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen?.() || 
-                document.documentElement.webkitRequestFullscreen?.();
+                if (videoContainer.requestFullscreen) {
+                    videoContainer.requestFullscreen();
+                } else if (videoContainer.webkitRequestFullscreen) {
+                    videoContainer.webkitRequestFullscreen();
+                } else if (videoContainer.mozRequestFullScreen) {
+                    videoContainer.mozRequestFullScreen();
+                } else if (videoContainer.msRequestFullscreen) {
+                    videoContainer.msRequestFullscreen();
+                } else {
+                    // 移动端备用方案
+                    videoPlayer.style.width = '100%';
+                    videoPlayer.style.height = '100%';
+                    status.textContent = '全屏模式已激活';
+                }
             } else {
-                document.exitFullscreen?.() || 
-                document.webkitExitFullscreen?.();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        // 处理全屏变化
+        function handleFullscreenChange() {
+            if (document.fullscreenElement) {
+                videoPlayer.style.objectFit = 'contain';
+            } else {
+                videoPlayer.style.objectFit = 'cover';
             }
         }
 
@@ -729,20 +796,19 @@
             renderMovieList(filteredMovies);
         }
 
-        // 显示错误
-        function showError(message) {
-            status.textContent = message;
-            status.style.color = '#ff6b6b';
-            movieList.innerHTML = `
-                <div class="empty-state">
-                    <div class="icon">❌</div>
-                    <div>${message}</div>
-                </div>
-            `;
+        // 处理视频错误
+        function handleVideoError(e) {
+            console.error('视频加载错误:', e);
+            status.textContent = '视频加载失败，请检查网络连接';
         }
 
         // 初始化
         document.addEventListener('DOMContentLoaded', initPlayer);
+
+        // 添加页面加载优化
+        window.addEventListener('load', function() {
+            status.textContent = '页面加载完成';
+        });
     </script>
 </body>
 </html>
