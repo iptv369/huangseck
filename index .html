@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>电影播放器</title>
     <style>
+        /* 之前的CSS样式保持不变 */
         * {
             margin: 0;
             padding: 0;
@@ -21,7 +22,6 @@
             overflow-x: hidden;
         }
 
-        /* 布局容器 */
         .app-container {
             width: 100%;
             margin: 0 auto;
@@ -32,7 +32,6 @@
             min-height: 100vh;
         }
 
-        /* 头部样式 */
         .app-header {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -101,7 +100,6 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* 主要内容区域 */
         .main-content {
             display: flex;
             flex-direction: column;
@@ -109,7 +107,6 @@
             flex: 1;
         }
 
-        /* 播放器区域 */
         .player-section {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -117,7 +114,7 @@
             padding: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            order: 2; /* 在移动端将播放器放在下面 */
+            order: 2;
         }
 
         .video-container {
@@ -128,7 +125,7 @@
             overflow: hidden;
             margin-bottom: 20px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-            aspect-ratio: 16/9; /* 使用现代宽高比属性 */
+            aspect-ratio: 16/9;
         }
 
         video {
@@ -212,7 +209,6 @@
             box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
         }
 
-        /* 播放列表区域 */
         .playlist-section {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -223,7 +219,7 @@
             max-height: 400px;
             display: flex;
             flex-direction: column;
-            order: 1; /* 在移动端将播放列表放在上面 */
+            order: 1;
         }
 
         .section-header {
@@ -353,7 +349,6 @@
             align-self: flex-start;
         }
 
-        /* 底部状态栏 */
         .app-footer {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -365,7 +360,6 @@
             font-size: 12px;
         }
 
-        /* 平板适配 */
         @media (min-width: 768px) {
             .app-container {
                 padding: 20px;
@@ -406,15 +400,6 @@
             }
         }
 
-        /* 加载状态 */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
         .empty-state {
             text-align: center;
             padding: 30px 15px;
@@ -427,7 +412,6 @@
             opacity: 0.5;
         }
 
-        /* 电脑端隐藏 */
         @media (min-width: 1025px) {
             body::before {
                 content: "此页面专为移动设备优化，请在手机或平板设备上访问";
@@ -451,7 +435,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- 头部 -->
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-section">
@@ -464,9 +447,7 @@
             </div>
         </header>
 
-        <!-- 主要内容 -->
         <main class="main-content">
-            <!-- 播放器区域 -->
             <section class="player-section">
                 <div class="video-container">
                     <video id="videoPlayer" controls playsinline webkit-playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23111'/%3E%3Cpath d='M300,200 L500,200 L400,280 Z' fill='%23333'/%3E%3C/svg%3E">
@@ -504,7 +485,6 @@
                 </div>
             </section>
 
-            <!-- 播放列表 -->
             <section class="playlist-section">
                 <div class="section-header">
                     <h2 class="section-title">电影列表</h2>
@@ -527,7 +507,6 @@
             </section>
         </main>
 
-        <!-- 底部状态 -->
         <footer class="app-footer">
             <div id="status">准备就绪，请选择电影开始播放</div>
         </footer>
@@ -615,7 +594,10 @@
                     <div class="movie-category">${movie.category}</div>
                 `;
 
-                movieElement.addEventListener('click', () => playMovie(index, movies));
+                // 修复：使用当前筛选列表中的电影
+                movieElement.addEventListener('click', () => {
+                    playMovieFromFilteredList(index);
+                });
                 movieList.appendChild(movieElement);
             });
         }
@@ -667,11 +649,11 @@
         }
 
         // 播放电影 - 修复：使用当前筛选列表中的电影
-        function playMovie(index, filteredMovies = currentFilteredMovies) {
-            if (index < 0 || index >= filteredMovies.length) return;
+        function playMovieFromFilteredList(index) {
+            if (index < 0 || index >= currentFilteredMovies.length) return;
             
             currentMovieIndex = index;
-            const movie = filteredMovies[index];
+            const movie = currentFilteredMovies[index];
             
             // 重置视频状态
             videoPlayer.pause();
@@ -713,10 +695,10 @@
             if (currentFilteredMovies.length === 0) return;
             
             const nextIndex = (currentMovieIndex + 1) % currentFilteredMovies.length;
-            playMovie(nextIndex, currentFilteredMovies);
+            playMovieFromFilteredList(nextIndex);
         }
 
-        // 切换全屏 - 移动端优化版本
+        // 切换全屏
         function toggleFullscreen() {
             const videoContainer = videoPlayer.parentElement;
             
