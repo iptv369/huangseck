@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>电影播放器 - 移动版</title>
+    <title>电影播放器</title>
     <style>
         * {
             margin: 0;
@@ -666,7 +666,7 @@
             document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
         }
 
-        // 播放电影 - 修复：传入当前筛选列表
+        // 播放电影 - 修复：使用当前筛选列表中的电影
         function playMovie(index, filteredMovies = currentFilteredMovies) {
             if (index < 0 || index >= filteredMovies.length) return;
             
